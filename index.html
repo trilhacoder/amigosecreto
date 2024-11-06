@@ -7,18 +7,68 @@
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
     }
 
     body {
-      background-color: azure;
+      background-color: rgb(235, 235, 235);
+      background: linear-gradient(0deg, rgba(112, 210, 210, 1) 50%, rgba(255,255,255,1) 100%);
+      height: 100vh;
+      color: rgb(74, 74, 74);
+      font-size: 16px;
+    }
+
+    main {
       display: flex;
       justify-content: center;
+      flex-direction: column;
+      max-width: 600px;
+      margin: 0 auto;
     }
-    button#adicionar {
+
+    header {
+      text-align: center;
+      background: rgb(131,58,180);
+      background: linear-gradient(270deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+      padding: 50px 0;
+      color: white;
+      width: 100%;
+    }
+
+    header h1 {
+      text-shadow: 1px 1px 1px black;
+      font-size: 56px;
+    }
+
+    header p {
+      font-size: 20px;
+    }
+
+    #sorteio {
+      margin: 10px
+    }
+
+    button:hover {
+      cursor: pointer;
+    }
+
+    .botao-adicionar, .botao-sortear {
       width: 150px;
       height: 50px;
+      background-color: dodgerblue;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      font-size: 16px;
     }
-    button#sortear {
+    
+    .botao-adicionar:hover, .botao-sortear:hover {
+      background-color: rgb(26, 116, 206);
+    }
+    .button-adicionar:active, .botao-sortear:active {
+      background-color: rgb(23, 101, 179);
+    }
+    .botao-sortear {
       width: 100%;
       height: 50px;
       margin: 10px 0;
@@ -26,9 +76,14 @@
     input {
       width: 300px;
       height: 50px;
+      padding: 5px 10px;
+      text-transform: uppercase;
+      border-radius: 5px;
+      border: none;
+      outline: none;
     }
-    .nome {
-      display: block;
+    input:hover, input:focus {
+      border: 2px solid dodgerblue;      
     }
     ul {
       padding-inline-start: 0px;
@@ -36,27 +91,89 @@
     }
     ul li {
       padding: 10px;
-      background-color: lightblue;
-      list-style-type: decimal;
+      background-color: rgb(255, 255, 255);
       margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      border-radius: 5px;
+    }
+    ul li div {
+      flex-grow: 1;
     }
     #mensagens {
-      margin: 100px;
+      margin: 20px 0;
+      text-align: left;
+      display: inline-block;
+      color: red;
+    }
+    .form {
+      display: flex;
+      flex-direction: column;
+    }
+    .form .controles, .form .sortear {
+      flex-grow: 1;
+    }
+    .controles-input {
+      display: flex;
+      gap: 5px;;
+    }
+    .controles-input input {
+      flex-grow: 1;
+    }
+    .botao-excluir {
+      border: none;
+      background-color: rgb(220, 1, 1);
+      color: white;
+      border-radius: 5px;
+      padding: 5px 10px;
+    }
+    .botao-excluir:hover {
+      background-color: rgb(182, 1, 1);
+    }
+    .botao-excluir:active {
+      background-color: rgb(152, 0, 0);
+    }
+    .nome-participante {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    #participantes {
+      margin-top: 10px;
+    }
+    #participantes div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nome {
+      font-size: 20px;
     }
   </style>
 </head>
 <body>
-  <main>
+  <header>
     <h1>Amigo Secreto</h1>
+    <p>Faço o sorteio para o seu amigo secreto!</p>
+  </header>
+  <main>
   
     <div id="sorteio" style="display: hidden;">
   
       <span id="mensagens"></span>
   
-      <label for="nome" class="nome">Nome</label>
-      <input id="nome" type="text">
-      <button id="adicionar">Adicionar</button>
-      <button id="sortear" style="display: block;visibility: hidden;">Sortear</button>
+      <div class="form">
+        <div class="controles">
+          <label for="nome" class="nome">Nome:</label>
+          <div class="controles-input">
+            <input id="nome" type="text">
+            <button id="adicionar" class="botao-adicionar">Adicionar</button>
+          </div>
+        </div>
+        <div class="sortear">
+          <button id="sortear" class="botao-sortear" style="display: none;">Sortear</button>
+        </div>
+      </div>
   
       <ul id="participantes"></ul>
     </div>
@@ -79,7 +196,7 @@
     } else {
       document.querySelector("#sorteado").style.display = "none"
       document.querySelector("#sorteio").style.display = ""
-      // document.getElementById("nome").focus()
+      document.getElementById("nome").focus()
     }
 
     let participantes = []
@@ -94,7 +211,7 @@
       document.getElementById(`participante${id}`).remove()
       participantes = participantes.filter(p => p.id != id)
       if (participantes.length < 3) {
-        document.querySelector("#sortear").style.visibility = "hidden"
+        document.querySelector("#sortear").style.display = "none"
       }
       document.getElementById("nome").focus()
     }
@@ -102,6 +219,13 @@
     function adicionarParticipante() {
       
       let novoNome = document.querySelector("#nome").value
+      
+      if (novoNome.trim() == "") {
+        document.querySelector("#mensagens").textContent = "Nome vazio. Não é possível adicionar um nome vazio."
+        return
+      } else {
+        document.querySelector("#mensagens").textContent = ""
+      }
 
       if (participantes.find(p => p.nome == novoNome) != undefined) {
         document.querySelector("#mensagens").textContent = "Nome já adicionado."
@@ -120,17 +244,18 @@
 
       $participantes.innerHTML += `
         <li id="participante${participante.id}">
-          <span>${participante.nome}</span>
-          <span id="id${participante.id}"></span>
-          <span id="idAmigo${participante.id}"></span>
-          <a id="link${participante.id}" href="" target="_blank"></a>
-          <button onclick="excluir(event)" id="excluir${participante.id}">Excluir</button>
+          <div>
+            <span class="nome-participante">${participante.nome}</span>
+            <span id="id${participante.id}"></span>
+            <a id="link${participante.id}" target="_blank"></a>
+          </div>
+          <button class="botao-excluir" onclick="excluir(event)" id="excluir${participante.id}">Excluir</button>
         </li>
       `
       document.querySelector("#nome").value = ""
       if (participantes.length > 2) {
         document.querySelector("#mensagens").textContent = ""
-        document.querySelector("#sortear").style.visibility = ""
+        document.querySelector("#sortear").style.display = ""
       }
       document.getElementById("nome").focus()
     }
@@ -153,7 +278,7 @@
       }
       
       participantes.forEach(participante => {
-        document.getElementById(`id${participante.id}`).textContent = ` - Amigo sorteado (enviei este link para ${participante.nome}): `
+        document.getElementById(`id${participante.id}`).textContent = `Copiei e compartilhe esse link com ${participante.nome.toUpperCase()}: `
         document.getElementById(`link${participante.id}`).href = window.location.href + "?amigo=" + btoa(participante.amigo)
         document.getElementById(`link${participante.id}`).textContent = document.getElementById(`link${participante.id}`).href
       })
