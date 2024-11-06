@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amigo Secreto</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: azure;
+      display: flex;
+      justify-content: center;
+    }
+    button#adicionar {
+      width: 150px;
+      height: 50px;
+    }
+    button#sortear {
+      width: 100%;
+      height: 50px;
+      margin: 10px 0;
+    }
+    input {
+      width: 300px;
+      height: 50px;
+    }
+    .nome {
+      display: block;
+    }
+    ul {
+      padding-inline-start: 0px;
+      list-style-position: inside;
+    }
+    ul li {
+      padding: 10px;
+      background-color: lightblue;
+      list-style-type: decimal;
+      margin-bottom: 5px;
+    }
+    #mensagens {
+      margin: 100px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Amigo Secreto</h1>
+  
+    <div id="sorteio" style="display: hidden;">
+  
+      <span id="mensagens"></span>
+  
+      <label for="nome" class="nome">Nome</label>
+      <input id="nome" type="text">
+      <button id="adicionar">Adicionar</button>
+      <button id="sortear" style="display: block;visibility: hidden;">Sortear</button>
+  
+      <ul id="participantes"></ul>
+    </div>
+    <div id="sorteado" style="display: hidden;">
+      <span>Seu amigo secreto é: </span><span id="amigo"></span>
+    </div>
+
+  </main>
+
+  <script>
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const amigoSecreto = urlParams.get("amigo")
+
+    if (amigoSecreto) {
+      document.querySelector("#amigo").textContent = atob(amigoSecreto)
+      document.querySelector("#sorteado").style.display = ""
+      document.querySelector("#sorteio").style.display = "none"
+    } else {
+      document.querySelector("#sorteado").style.display = "none"
+      document.querySelector("#sorteio").style.display = ""
+      // document.getElementById("nome").focus()
+    }
+
+    let participantes = []
+
+    let $participantes = document.querySelector("#participantes")
+
+    document.querySelector("#adicionar").addEventListener("click", adicionarParticipante)
+    document.querySelector("#sortear").addEventListener("click", sortearAmigoSecreto)
+    
+    function excluir(event) {
+      let id = `${event.target.id}`.replace("excluir", "")
+      document.getElementById(`participante${id}`).remove()
+      participantes = participantes.filter(p => p.id != id)
+      if (participantes.length < 3) {
+        document.querySelector("#sortear").style.visibility = "hidden"
+      }
+      document.getElementById("nome").focus()
+    }
+
+    function adicionarParticipante() {
+      
+      let novoNome = document.querySelector("#nome").value
+
+      if (participantes.find(p => p.nome == novoNome) != undefined) {
+        document.querySelector("#mensagens").textContent = "Nome já adicionado."
+        return
+      } else {
+        document.querySelector("#mensagens").textContent = ""
+      }
+
+      let participante = {
+        id: Math.random(),
+        nome: novoNome,
+        amigo: ""
+      }
+
+      participantes.push(participante)
+
+      $participantes.innerHTML += `
+        <li id="participante${participante.id}">
+          <span>${participante.nome}</span>
+          <span id="id${participante.id}"></span>
+          <span id="idAmigo${participante.id}"></span>
+          <a id="link${participante.id}" href="" target="_blank"></a>
+          <button onclick="excluir(event)" id="excluir${participante.id}">Excluir</button>
+        </li>
+      `
+      document.querySelector("#nome").value = ""
+      if (participantes.length > 2) {
+        document.querySelector("#mensagens").textContent = ""
+        document.querySelector("#sortear").style.visibility = ""
+      }
+      document.getElementById("nome").focus()
+    }
+
+    function sortearAmigoSecreto() {
+      document.querySelector("#mensagens").textContent = ""
+      if (participantes.length < 3) {
+        document.querySelector("#mensagens").textContent = "É necessário 3 ou mais participantes para realizar o sorteio."
+        return
+      }
+
+      participantes = participantes.sort((p1, p2) => p1.id - p2.id)
+      for (let i = 0; i <= participantes.length - 1; i++) {
+        const participante = participantes[i];
+        if (i == participantes.length - 1) {
+          participante.amigo = participantes[0].nome
+          break
+        }
+        participante.amigo = participantes[i + 1].nome
+      }
+      
+      participantes.forEach(participante => {
+        document.getElementById(`id${participante.id}`).textContent = ` - Amigo sorteado (enviei este link para ${participante.nome}): `
+        document.getElementById(`link${participante.id}`).href = window.location.href + "?amigo=" + btoa(participante.amigo)
+        document.getElementById(`link${participante.id}`).textContent = document.getElementById(`link${participante.id}`).href
+      })
+    }
+
+    function renderizarLista() {
+      participantes.forEach(participante => {
+        let novoId = Math.random()
+        document.getElementById(`id${participante.id}`).id = `id${novoId}`
+        document.getElementById(`link${participante.id}`).id = `link${novoId}`
+        document.getElementById(`excluir${participante.id}`).id = `excluir${novoId}`
+        participante.id = novoId
+      })
+    }
+
+  </script>
+
+</body>
+</html>
