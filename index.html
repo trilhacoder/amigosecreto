@@ -47,20 +47,19 @@
       margin: 10px
     }
 
-    button:hover {
-      cursor: pointer;
+    button {
+      outline: none;
+      border: 2px solid transparent;
     }
 
-    button:focus {
-      outline: none;
-      border: 2px solid;
+    button:hover {
+      cursor: pointer;
     }
 
     .botao-adicionar, .botao-sortear {
       width: 150px;
       height: 50px;
       background-color: dodgerblue;
-      border: none;
       color: white;
       border-radius: 5px;
       font-size: 16px;
@@ -73,8 +72,9 @@
     .botao-adicionar:hover, .botao-sortear:hover {
       background-color: rgb(26, 116, 206);
     }
-    .button-adicionar:active, .botao-sortear:active {
+    .botao-adicionar:active, .botao-sortear:active {
       background-color: rgb(23, 101, 179);
+      border-color: rgb(23, 101, 179);
     }
     .botao-sortear {
       width: 100%;
@@ -138,18 +138,23 @@
       flex-grow: 1;
     }
     .botao-excluir {
-      border: none;
       background-color: rgb(220, 1, 1);
       color: white;
       border-radius: 5px;
       padding: 5px 10px;
     }
+    .botao-excluir:focus {
+      border-color: rgb(160, 1, 1);
+    }
     .botao-excluir:hover {
-      background-color: rgb(182, 1, 1);
+      background-color: rgb(180, 1, 1);
+      border-color: rgb(180, 1, 1);
     }
     .botao-excluir:active {
-      background-color: rgb(152, 0, 0);
+      background-color: rgb(160, 1, 1);
+      border-color: rgb(160, 1, 1);
     }
+
     .nome-participante {
       font-weight: bold;
       text-transform: uppercase;
@@ -183,7 +188,7 @@
         <div class="controles">
           <label for="nome" class="nome">Nome:</label>
           <div class="controles-input">
-            <input id="nome" type="text">
+            <input id="nome" type="text" onkeyup="adicionarClick(event)">
             <button id="adicionar" class="botao-adicionar">Adicionar</button>
           </div>
         </div>
@@ -202,6 +207,13 @@
 
   <script>
 
+    function adicionarClick(event) {
+      console.log(event.code)
+      if (event.code == "NumpadEnter") {
+        document.querySelector("#adicionar").click()
+      }
+    }
+
     let sorteioRealizado = false
 
     const queryString = window.location.search;
@@ -215,7 +227,7 @@
     } else {
       document.querySelector("#sorteado").style.display = "none"
       document.querySelector("#sorteio").style.display = ""
-      //document.getElementById("nome").focus()
+      document.getElementById("nome").focus()
     }
 
     let participantes = []
