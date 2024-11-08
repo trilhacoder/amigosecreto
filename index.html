@@ -209,7 +209,7 @@
 
     function adicionarClick(event) {
       console.log(event.code)
-      if (event.code == "NumpadEnter") {
+      if (document.getElementById("nome").value.trim() != "" && event.code == "NumpadEnter") {
         document.querySelector("#adicionar").click()
       }
     }
