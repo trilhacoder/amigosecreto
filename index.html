@@ -11,8 +11,7 @@
     }
 
     body {
-      background-color: rgb(235, 235, 235);
-      background: linear-gradient(0deg, rgba(112, 210, 210, 1) 50%, rgba(255,255,255,1) 100%);
+      background-color: rgb(112, 210, 210);
       height: 100vh;
       color: rgb(74, 74, 74);
       font-size: 16px;
@@ -29,7 +28,7 @@
     header {
       text-align: center;
       background: rgb(131,58,180);
-      background: linear-gradient(270deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+      background: linear-gradient(270deg, rgba(253,29,29,1) 0%, rgba(252,176,69,1) 100%);
       padding: 50px 0;
       color: white;
       width: 100%;
@@ -97,6 +96,11 @@
       align-items: center;
       border-radius: 5px;
     }
+
+    ul li a {
+      width: fit-content
+    }
+
     ul li div {
       flex-grow: 1;
     }
@@ -105,6 +109,10 @@
       text-align: left;
       display: inline-block;
       color: red;
+      background-color: #fff;
+      width: 100%;
+      padding: 15px;
+      border-radius: 5px;
     }
     .form {
       display: flex;
@@ -154,13 +162,13 @@
 <body>
   <header>
     <h1>Amigo Secreto</h1>
-    <p>Faço o sorteio para o seu amigo secreto!</p>
+    <p>Sorteio online para o seu amigo secreto!</p>
   </header>
   <main>
   
-    <div id="sorteio" style="display: hidden;">
+    <div id="sorteio" style="display: none;">
   
-      <span id="mensagens"></span>
+      <span id="mensagens" style="visibility: hidden;"></span>
   
       <div class="form">
         <div class="controles">
@@ -185,6 +193,8 @@
 
   <script>
 
+    let sorteioRealizado = false
+
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const amigoSecreto = urlParams.get("amigo")
@@ -196,7 +206,7 @@
     } else {
       document.querySelector("#sorteado").style.display = "none"
       document.querySelector("#sorteio").style.display = ""
-      document.getElementById("nome").focus()
+      //document.getElementById("nome").focus()
     }
 
     let participantes = []
@@ -221,19 +231,31 @@
       let novoNome = document.querySelector("#nome").value
       
       if (novoNome.trim() == "") {
-        document.querySelector("#mensagens").textContent = "Nome vazio. Não é possível adicionar um nome vazio."
+        document.querySelector("#mensagens").textContent = "Não é possível adicionar um nome vazio."
+        document.querySelector("#mensagens").style.visibility = "visible"
         return
       } else {
+        document.querySelector("#mensagens").style.visibility = "hidden"
         document.querySelector("#mensagens").textContent = ""
       }
 
       if (participantes.find(p => p.nome == novoNome) != undefined) {
         document.querySelector("#mensagens").textContent = "Nome já adicionado."
+        document.querySelector("#mensagens").style.visibility = "visible"
         return
       } else {
+        document.querySelector("#mensagens").style.visibility = "hidden"
         document.querySelector("#mensagens").textContent = ""
       }
 
+      if (sorteioRealizado) {
+        document.querySelector("#mensagens").textContent = "Sorteio já realizado. Reiniando o sorteio."
+        document.querySelector("#mensagens").style.visibility = "visible"
+      } else {
+        document.querySelector("#mensagens").style.visibility = "hidden"
+        document.querySelector("#mensagens").textContent = ""
+      }
+      
       let participante = {
         id: Math.random(),
         nome: novoNome,
@@ -241,30 +263,51 @@
       }
 
       participantes.push(participante)
+      if (sorteioRealizado) {
+        $participantes.innerHTML = "";
+        participantes.forEach(participante => {
+          $participantes.innerHTML += `
+            <li id="participante${participante.id}">
+              <div>
+                <span class="nome-participante">${participante.nome}</span>
+                <span id="id${participante.id}"></span>
+                <a id="link${participante.id}" target="_blank"></a>
+              </div>
+              <button class="botao-excluir" onclick="excluir(event)" id="excluir${participante.id}">Excluir</button>
+            </li>
+          `
+        })
+      } else {
+        $participantes.innerHTML += `
+          <li id="participante${participante.id}">
+            <div>
+              <span class="nome-participante">${participante.nome}</span>
+              <span id="id${participante.id}"></span>
+              <a id="link${participante.id}" target="_blank"></a>
+            </div>
+            <button class="botao-excluir" onclick="excluir(event)" id="excluir${participante.id}">Excluir</button>
+          </li>
+        `
+      }
 
-      $participantes.innerHTML += `
-        <li id="participante${participante.id}">
-          <div>
-            <span class="nome-participante">${participante.nome}</span>
-            <span id="id${participante.id}"></span>
-            <a id="link${participante.id}" target="_blank"></a>
-          </div>
-          <button class="botao-excluir" onclick="excluir(event)" id="excluir${participante.id}">Excluir</button>
-        </li>
-      `
-      document.querySelector("#nome").value = ""
       if (participantes.length > 2) {
-        document.querySelector("#mensagens").textContent = ""
         document.querySelector("#sortear").style.display = ""
       }
+      
+      sorteioRealizado = false
+
+      document.querySelector("#nome").value = ""
       document.getElementById("nome").focus()
     }
 
     function sortearAmigoSecreto() {
-      document.querySelector("#mensagens").textContent = ""
       if (participantes.length < 3) {
         document.querySelector("#mensagens").textContent = "É necessário 3 ou mais participantes para realizar o sorteio."
+        document.querySelector("#mensagens").style.visibility = "visible"
         return
+      } else {
+        document.querySelector("#mensagens").textContent = ""
+        document.querySelector("#mensagens").style.visibility = "hidden"
       }
 
       participantes = participantes.sort((p1, p2) => p1.id - p2.id)
@@ -282,6 +325,8 @@
         document.getElementById(`link${participante.id}`).href = window.location.href + "?amigo=" + btoa(participante.amigo)
         document.getElementById(`link${participante.id}`).textContent = document.getElementById(`link${participante.id}`).href
       })
+
+      sorteioRealizado = true
     }
 
     function renderizarLista() {
