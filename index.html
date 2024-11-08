@@ -51,6 +51,11 @@
       cursor: pointer;
     }
 
+    button:focus {
+      outline: none;
+      border: 2px solid;
+    }
+
     .botao-adicionar, .botao-sortear {
       width: 150px;
       height: 50px;
@@ -59,6 +64,10 @@
       color: white;
       border-radius: 5px;
       font-size: 16px;
+    }
+
+    .botao-adicionar:focus, .botao-sortear:focus {
+      border-color: rgb(26, 116, 206);
     }
     
     .botao-adicionar:hover, .botao-sortear:hover {
